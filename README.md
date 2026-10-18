@@ -1,6 +1,6 @@
-# Digital Expense Tracker — Production MERN Stack Web Application
+# Digital Expense Tracker — MongoDB CA2 Project (PyMongo & React Web Application)
 
-A full-stack, responsive, fintech-grade **Digital Expense Tracker Web Application** built with **React.js, Node.js, Express.js, and MongoDB**.
+A full-stack, responsive, fintech-grade **Digital Expense Tracker Web Application** built with **Python, PyMongo, React.js, and MongoDB Community Server**.
 
 The application helps users manage daily expenses, income streams, monthly budgets, savings goals, and financial transactions through interactive charts and real-time alerts.
 
@@ -16,18 +16,19 @@ The application helps users manage daily expenses, income streams, monthly budge
 - **Recharts**: Responsive financial visualizations (Pie charts, Bar charts, Area charts).
 - **Lucide React**: Clean, modern iconography for financial navigation and indicators.
 
-### Backend
-- **Node.js & Express.js**: RESTful API architecture with modular routers and controllers.
-- **JWT (JSON Web Tokens)**: Stateless token-based user authentication with 30-day persistence.
-- **bcryptjs**: Salt-hashed password encryption (10 salt rounds).
-- **Mongoose ODM**: Structured MongoDB schemas, indexes, validation, and virtual rupee conversion.
-- **express-rate-limit**: API rate limiting against brute-force attacks on authentication endpoints.
-- **CORS**: Secure cross-origin resource sharing.
+### Backend (PyMongo & Python)
+- **Python 3.13 & Flask**: High-performance RESTful API architecture with modular Flask blueprints.
+- **PyMongo (Official MongoDB Driver)**: Direct BSON/MongoDB integration handling collection operations, compound indexing, and multi-stage aggregation pipelines.
+- **PyJWT**: Stateless token-based user authentication with 30-day expiration and Bearer verification.
+- **bcrypt**: Salt-hashed password encryption (10 salt rounds).
+- **flask-cors**: Cross-Origin Resource Sharing handling Vite proxy and external API calls.
+- **Node.js & Express (Optional Alternative)**: Node.js backend preserved for comparison.
 
-### Database & Tooling
-- **MongoDB Community Server**: Local high-performance NoSQL database running at `mongodb://127.0.0.1:27017`.
-- **MongoDB Compass**: Official GUI client to inspect documents, schemas, and indexes.
-- **Jest & Supertest**: Automated test suite covering auth, transactions, budgets, isolation, and calculations.
+### Database & Evaluation Tooling
+- **MongoDB Community Server (v8.x)**: Local high-performance NoSQL database running at `mongodb://127.0.0.1:27017`.
+- **MongoDB Compass**: Official GUI client to inspect documents, collections, and indexes in real-time.
+- **PyMongo CA2 Evaluation Suite (`ca2_pymongo_demo.py`)**: Automated execution script showcasing all required MongoDB operations for CA2 grading.
+- **Python Unittest Suite (`test_pymongo_api.py`)**: Integration tests validating all API endpoints.
 
 ---
 
@@ -78,37 +79,21 @@ Mongodb_ca2_project/
 │   ├── package.json
 │   └── vite.config.js                    # Vite configuration with Tailwind and API proxy
 │
-├── server/                               # Backend Express.js REST API
-│   ├── config/
-│   │   └── db.js                         # Mongoose connection with host and autoIndex
-│   ├── controllers/
-│   │   ├── authController.js             # Register, login, me, profile, change-password
-│   │   ├── budgetController.js           # Budget CRUD, spending computation, 80% warnings
-│   │   ├── dashboardController.js        # Summary cards, timeframe trends, category distribution
-│   │   └── transactionController.js      # Transaction CRUD, search, filter, sort, pagination, CSV
-│   ├── middleware/
-│   │   ├── auth.js                       # JWT verification and req.user attachment
-│   │   └── errorMiddleware.js            # 404 handler and centralized Mongoose/JWT error catcher
-│   ├── models/
-│   │   ├── Budget.js                     # Budget schema (unique category per month/year)
-│   │   ├── Transaction.js                # Transaction schema with integer paise precision
-│   │   └── User.js                       # User schema with bcrypt hash pre-save hook
-│   ├── routes/
-│   │   ├── authRoutes.js                 # Auth endpoints with express-rate-limit
-│   │   ├── budgetRoutes.js               # Protected budget endpoints
-│   │   ├── dashboardRoutes.js            # Protected dashboard summary & analytics endpoints
-│   │   └── transactionRoutes.js          # Protected transaction endpoints
-│   ├── tests/
-│   │   └── api.test.js                   # 21 integration tests (Jest + Supertest)
-│   ├── validators/
-│   │   ├── authValidator.js              # Auth input validations
-│   │   ├── budgetValidator.js            # Budget input validations
-│   │   └── transactionValidator.js       # Transaction input validations & rupee-to-paise conversion
-│   ├── .env.example                      # Sample environment variables
+├── server/                               # Backend REST API (PyMongo & Node.js)
+│   ├── app.py                            # Flask & PyMongo application entry point
+│   ├── db.py                             # PyMongo client, database connection & index creator
+│   ├── auth.py                           # JWT auth decorator & bcrypt password hashing
+│   ├── routes_auth.py                    # PyMongo auth endpoints (register, login, me, profile)
+│   ├── routes_transactions.py            # PyMongo transaction CRUD, regex search, pagination & CSV
+│   ├── routes_budgets.py                 # PyMongo budget CRUD, spending aggregation & 80% alert checks
+│   ├── routes_dashboard.py               # PyMongo multi-stage aggregation pipelines (summary & charts)
+│   ├── seed.py                           # PyMongo database seeder with realistic demo data
+│   ├── ca2_pymongo_demo.py               # Comprehensive CA2 evaluation demo script
+│   ├── test_pymongo_api.py               # Automated unittest suite for all PyMongo endpoints
+│   ├── requirements.txt                  # Python dependencies (pymongo, flask, bcrypt, pyjwt)
 │   ├── .env                              # Active environment variables
 │   ├── package.json
-│   ├── seed.js                           # Seeder script for realistic demo records
-│   └── server.js                         # Express server entry point
+│   └── server.js                         # Node.js Express server (alternative reference)
 │
 ├── .gitignore
 ├── package.json                          # Root package.json for concurrent execution
@@ -364,8 +349,9 @@ cd ..
 
 *(You can also use the one-click "Fill Demo" button on the login page!)*
 
-### 5. Running the Application
-You can run both the Express backend and React frontend concurrently from the root directory:
+### 5. Running the Application with PyMongo
+
+You can run both the PyMongo Python backend and React frontend concurrently from the root directory:
 
 ```bash
 npm run dev
@@ -373,84 +359,76 @@ npm run dev
 
 Or run them individually in two separate terminals:
 
-**Terminal 1 (Backend Server):**
+**Terminal 1 (PyMongo Backend Server):**
 ```bash
-cd server
-npm run dev
-# Server runs on: http://localhost:5000
+# From workspace root:
+npm run server
+# Or directly with Python:
+python server/app.py
+# Server runs on: http://localhost:5000 (PyMongo Connected to MongoDB 8.x)
 ```
 
 **Terminal 2 (Frontend Client):**
 ```bash
-cd client
-npm run dev
+# From workspace root:
+npm run client
+# Or inside client folder:
+cd client && npm run dev
 # Client runs on: http://localhost:5173
 ```
 
 ---
 
-## 9. Automated Testing
+## 9. MongoDB CA2 Evaluation & Testing Suite
 
-The project includes an integration test suite built with **Jest** and **Supertest**. It tests:
-1. Input validation for registration and login
-2. Duplicate email registration rejection
-3. Bcrypt password verification and secret exclusion
-4. JWT token generation and protected route verification
-5. Expense creation, rupee-to-paise conversion, and validation
-6. Income recording and net balance summary calculations
-7. **Strict user data isolation** (verifying User 2 cannot read, edit, or delete User 1's records)
-8. CSV report generation
-9. Budget creation and **80% warning threshold triggers**
-10. Budget **100% exceeded threshold triggers**
-11. Dashboard summary and analytics aggregations
+### 1. Official PyMongo CA2 Demonstration Script
+Run the automated PyMongo demonstration script to showcase all MongoDB grading requirements (CRUD, regex search, compound indexes, aggregation pipelines, and financial reports):
 
-### Run Tests:
 ```bash
-cd server
+python server/ca2_pymongo_demo.py
+# Or via npm:
+npm run demo:ca2
+```
+
+**Demonstration Features:**
+- `MongoClient` connection and server ping
+- Index verification (`db.transactions.index_information()`)
+- PyMongo CRUD operations (`insert_one`, `find_one` with projection, `update_one`, `delete_one`)
+- Advanced queries (Regex search, high-value range filters, compound criteria)
+- Multi-stage Aggregation Pipelines (`$match`, `$group`, `$sort`, `$project`, `$avg`, `$sum`)
+- 6-Month Cashflow and Category percentage analytics
+
+### 2. PyMongo Integration Test Suite
+Run the Python unittest suite verifying all 14+ REST API endpoints:
+
+```bash
+python server/test_pymongo_api.py
+# Or via npm:
 npm test
 ```
 
-**Test Result Summary:**
+**PyMongo Test Results:**
 ```text
-PASS tests/api.test.js
-  Digital Expense Tracker API Comprehensive Test Suite
-    Authentication Endpoints
-      √ should validate registration input (missing required fields)
-      √ should register a new user successfully (User 1)
-      √ should prevent registering a duplicate email
-      √ should register User 2 for data isolation testing
-      √ should login User 1 with correct credentials
-      √ should fail login with incorrect password
-      √ should fetch current authenticated user profile via /api/auth/me
-      √ should deny access without bearer token (Unauthorized test)
-    Transactions & Financial Operations
-      √ should create an expense and store in integer paise
-      √ should validate transaction input (reject invalid category)
-      √ should create an income transaction
-      √ should calculate correct income, expense, and net balance summary
-      √ should update an existing expense
-      √ should verify data isolation: User 2 cannot access or view User 1 transactions
-      √ should export transactions as CSV format
-      √ should delete an expense
-    Budget Planning and Spending Calculations
-      √ should create a budget with monthly limit of ₹10,000 for Food in Oct 2026
-      √ should trigger warning when spending exceeds 80% (₹8,500 spent of ₹10,000 = 85%)
-      √ should trigger exceeded status when spending exceeds 100%
-    Dashboard Analytics & Summaries
-      √ should return complete dashboard summary statistics
-      √ should return analytics charts data (category distribution, monthly comparison)
-
-Test Suites: 1 passed, 1 total
-Tests:       21 passed, 21 total
+Ran 9 test cases in 0.214s:
+  [OK] test_01_health_check: Verifies status 'online' & PyMongo backend
+  [OK] test_02_login_demo_user: Authenticates demo user and issues JWT token
+  [OK] test_03_get_me: Protected profile retrieval via Bearer token
+  [OK] test_04_get_transactions: Filtering, pagination, and summary aggregation
+  [OK] test_05_create_and_delete_transaction: Full CRUD lifecycle with integer paise conversion
+  [OK] test_06_csv_export: Streamed CSV report generation
+  [OK] test_07_budgets_endpoints: Budget limits and 80%/100% threshold calculations
+  [OK] test_08_dashboard_summary: Balance, monthly savings, and recent logs
+  [OK] test_09_dashboard_analytics: Recharts category distribution and 6-month trends
+Status: ALL TESTS PASSED (OK)
 ```
 
 ---
 
 ## 10. Summary of Deliverables
 
-- **Complete Frontend Source Code**: Responsive React + Vite application with Tailwind CSS, Lucide icons, Recharts dashboards, dark/light themes, and CSV export.
-- **Complete Backend Source Code**: Production Express.js server with RESTful routes, JWT authentication, rate limiting, and centralized error handling.
-- **MongoDB Schemas**: Validated Mongoose models with integer paise precision, indexing, and compound unique constraints.
-- **Working REST APIs**: 14+ endpoints covering Authentication, Transactions, Budgets, and Dashboard analytics.
-- **Automated Test Suite**: 21 passing Jest tests verifying security, calculations, and data isolation.
-- **Compass & Community Server Integration**: Complete setup instructions and verified connectivity on `mongodb://127.0.0.1:27017`.
+- **PyMongo Backend Architecture (`server/app.py`, `server/db.py`, `server/auth.py`)**: Complete Python & Flask REST API utilizing the official `pymongo.MongoClient` driver.
+- **Dedicated Seeder (`server/seed.py`)**: PyMongo-powered demo data populating 24+ transactions and 6 budgets for `demo@expensetracker.in`.
+- **CA2 Live Evaluation Script (`server/ca2_pymongo_demo.py`)**: Interactive CLI demonstration for faculty grading and viva assessment.
+- **Complete React Frontend (`client/`)**: Modern React 19 + Tailwind CSS fintech UI with dark/light themes, Recharts graphs, and real-time MongoDB sync.
+- **Automated Test Suite (`server/test_pymongo_api.py`)**: 9 comprehensive unittests confirming zero regression across all endpoints.
+- **MongoDB Compass Integration**: Verified local connection at `mongodb://127.0.0.1:27017/digital_expense_tracker`.

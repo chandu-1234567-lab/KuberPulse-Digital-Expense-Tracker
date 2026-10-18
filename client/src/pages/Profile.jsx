@@ -319,12 +319,12 @@ export const Profile = () => {
                 MongoDB Community Server & Compass Integration
               </h3>
               <p className="text-xs text-slate-600 dark:text-slate-400">
-                Official database architecture & GUI inspection guide
+                Official PyMongo Python backend & MongoDB Compass inspection
               </p>
             </div>
           </div>
           <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/30">
-            Active Connection
+            PyMongo Active
           </span>
         </div>
 

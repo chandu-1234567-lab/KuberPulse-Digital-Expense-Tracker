@@ -4,13 +4,18 @@
   "description": "Production MERN Stack Digital Expense Tracker",
   "private": true,
   "scripts": {
-    "server": "npm --prefix server run dev",
-    "server:start": "npm --prefix server run start",
+    "server": "python server/app.py",
+    "server:python": "python server/app.py",
+    "server:node": "npm --prefix server run dev:node",
     "client": "npm --prefix client run dev",
     "client:build": "npm --prefix client run build",
-    "seed": "npm --prefix server run seed",
-    "test": "npm --prefix server run test",
-    "dev": "concurrently -n \"SERVER,CLIENT\" -c \"blue,green\" \"npm --prefix server run dev\" \"npm --prefix client run dev\""
+    "seed": "python server/seed.py",
+    "seed:python": "python server/seed.py",
+    "seed:node": "npm --prefix server run seed:node",
+    "demo:ca2": "python server/ca2_pymongo_demo.py",
+    "test": "python server/test_pymongo_api.py",
+    "dev": "concurrently -n \"PYMONGO,CLIENT\" -c \"yellow,cyan\" \"python server/app.py\" \"npm --prefix client run dev\"",
+    "dev:node": "concurrently -n \"NODE,CLIENT\" -c \"blue,cyan\" \"npm --prefix server run dev:node\" \"npm --prefix client run dev\""
   },
   "devDependencies": {
     "concurrently": "^9.2.5"
