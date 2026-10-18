@@ -141,6 +141,33 @@ class PyMongoAPITestCase(unittest.TestCase):
         self.assertIn('monthlyComparison', data)
         self.assertIn('paymentMethods', data)
 
+    def test_10_forgot_and_reset_password(self):
+        # 1. Request verification code
+        res1 = self.client.post(
+            '/api/auth/forgot-password',
+            data=json.dumps({'email': 'demo@expensetracker.in'}),
+            content_type='application/json',
+        )
+        self.assertEqual(res1.status_code, 200)
+        data1 = res1.get_json()
+        self.assertTrue(data1.get('success'))
+        self.assertIn('code', data1)
+        code = data1['code']
+
+        # 2. Reset password using the code
+        res2 = self.client.post(
+            '/api/auth/reset-password',
+            data=json.dumps({
+                'email': 'demo@expensetracker.in',
+                'code': code,
+                'newPassword': 'Password@123',
+            }),
+            content_type='application/json',
+        )
+        self.assertEqual(res2.status_code, 200)
+        data2 = res2.get_json()
+        self.assertTrue(data2.get('success'))
+
 
 if __name__ == '__main__':
     unittest.main()

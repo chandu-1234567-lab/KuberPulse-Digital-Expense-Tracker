@@ -4,7 +4,8 @@ Digital Expense Tracker API
 """
 
 import re
-from datetime import datetime, timezone
+import secrets
+from datetime import datetime, timezone, timedelta
 from flask import Blueprint, request, jsonify, g
 from bson import ObjectId
 from pymongo import ReturnDocument
@@ -172,3 +173,96 @@ def change_password():
         'success': True,
         'message': 'Password changed successfully'
     }), 200
+
+
+@auth_bp.route('/forgot-password', methods=['POST'])
+def forgot_password():
+    data = request.get_json(silent=True) or {}
+    email = (data.get('email') or '').lower().strip()
+
+    if not email or not re.match(EMAIL_REGEX, email):
+        return jsonify({'success': False, 'message': 'Please provide a valid email address'}), 400
+
+    user = users_col.find_one({'email': email})
+    if not user:
+        return jsonify({'success': False, 'message': 'No account found with this email address'}), 404
+
+    # Generate 6-digit secure numeric verification code
+    reset_code = f"{secrets.randbelow(900000) + 100000}"
+    now = datetime.now(timezone.utc)
+    expires_at = now + timedelta(minutes=15)
+
+    users_col.update_one(
+        {'_id': user['_id']},
+        {
+            '$set': {
+                'resetPasswordCode': reset_code,
+                'resetPasswordExpires': expires_at,
+                'updatedAt': now,
+            }
+        }
+    )
+
+    return jsonify({
+        'success': True,
+        'message': 'Password reset verification code generated successfully.',
+        'code': reset_code,
+        'expiresInMinutes': 15,
+        'email': email,
+    }), 200
+
+
+@auth_bp.route('/reset-password', methods=['POST'])
+def reset_password():
+    data = request.get_json(silent=True) or {}
+    email = (data.get('email') or '').lower().strip()
+    code = (data.get('code') or '').strip()
+    new_password = data.get('newPassword') or ''
+
+    if not email:
+        return jsonify({'success': False, 'message': 'Email address is required'}), 400
+
+    if not code:
+        return jsonify({'success': False, 'message': '6-digit verification code is required'}), 400
+
+    if not new_password or len(new_password) < 6:
+        return jsonify({'success': False, 'message': 'New password must be at least 6 characters long'}), 400
+
+    user = users_col.find_one({'email': email})
+    if not user:
+        return jsonify({'success': False, 'message': 'User not found'}), 404
+
+    stored_code = user.get('resetPasswordCode')
+    stored_expires = user.get('resetPasswordExpires')
+
+    if not stored_code or stored_code != code:
+        return jsonify({'success': False, 'message': 'Invalid verification code. Please check and try again.'}), 400
+
+    now = datetime.now(timezone.utc)
+    if stored_expires:
+        if isinstance(stored_expires, datetime):
+            exp_tz = stored_expires if stored_expires.tzinfo else stored_expires.replace(tzinfo=timezone.utc)
+            if exp_tz < now:
+                return jsonify({'success': False, 'message': 'Verification code has expired. Please request a new one.'}), 400
+
+    # Hash new password and clear reset code
+    new_hash = hash_password(new_password)
+    users_col.update_one(
+        {'_id': user['_id']},
+        {
+            '$set': {
+                'password': new_hash,
+                'updatedAt': now,
+            },
+            '$unset': {
+                'resetPasswordCode': '',
+                'resetPasswordExpires': '',
+            }
+        }
+    )
+
+    return jsonify({
+        'success': True,
+        'message': 'Password reset successful! You can now log in with your new password.',
+    }), 200
+
