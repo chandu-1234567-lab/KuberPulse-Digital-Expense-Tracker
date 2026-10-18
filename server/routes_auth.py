@@ -13,7 +13,7 @@ from auth import hash_password, verify_password, generate_token, jwt_required
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 
-EMAIL_REGEX = r'^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,})+$'
+EMAIL_REGEX = r'^[^@\s]+@[^@\s]+\.[^@\s]+$'
 
 
 @auth_bp.route('/register', methods=['POST'])
